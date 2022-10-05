@@ -1,37 +1,32 @@
-import { useState } from 'react';
-import './App.css';
-import {Users} from './users';
-import Table from './components/Table';
+import { useEffect, useState } from "react";
+import { Users } from "./users";
+import "./App.css";
+import Table from "./components/Table";
+import axios from "axios";
+
+
+////////////////////// API SEARCH
 
 function App() {
-
   const [query, setQuery] = useState("");
+  const [data, setData] = useState([]);
 
-  const keys = [
-    "first_name",
-    "last_name",
-    "email"
-  ] // keys to search in the data-array
-
-  console.log(Users[0])
-
-  const search = (data) => {
-    return data.filter(
-      (item) =>
-       keys.some((key) => item[key].toLowerCase().includes(query))
-    );
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await axios.get(`http://localhost:5000?q=${query}`);
+      setData(res.data);
+    };
+    if (query.length === 0 || query.length > 2) fetchData();
+  }, [query]);
 
   return (
     <div className="app">
-      <input
-      type="text"
-      placeholder="Search..."
-      className="search"
-      onChange={e => setQuery(e.target.value)}/>
-      
-      <Table data={search(Users)}/>
-      
+        <input
+          className="search"
+          placeholder="Search..."
+          onChange={(e) => setQuery(e.target.value.toLowerCase())}
+        />
+      {<Table data={data} />}
     </div>
   );
 }
